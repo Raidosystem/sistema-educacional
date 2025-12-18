@@ -93,7 +93,7 @@ export function Sidebar({ user, activeSection, onSectionChange, notifications, o
         </div>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {filteredNavItems.map((item) => {
           const Icon = item.icon
           const isActive = activeSection === item.id
@@ -102,11 +102,11 @@ export function Sidebar({ user, activeSection, onSectionChange, notifications, o
             <Button
               key={item.id}
               variant={isActive ? 'default' : 'ghost'}
-              className={`w-full justify-start ${isActive ? 'shadow-sm' : ''}`}
+              className={`w-full justify-start gap-2 ${isActive ? 'shadow-sm' : ''}`}
               onClick={() => onSectionChange(item.id)}
             >
-              <Icon size={20} weight={isActive ? 'fill' : 'bold'} />
-              {item.label}
+              <Icon size={20} weight={isActive ? 'fill' : 'bold'} className="shrink-0" />
+              <span className="flex-1 text-left">{item.label}</span>
               {item.id === 'dashboard' && notifications > 0 && (
                 <Badge className="ml-auto bg-accent text-accent-foreground">
                   {notifications}
@@ -123,11 +123,11 @@ export function Sidebar({ user, activeSection, onSectionChange, notifications, o
         {user.role === 'parent' ? (
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className="w-full justify-start gap-2"
             onClick={() => onSectionChange('parent-notifications')}
           >
-            <Bell size={20} weight="bold" />
-            Notificações
+            <Bell size={20} weight="bold" className="shrink-0" />
+            <span className="flex-1 text-left">Notificações</span>
             {notifications > 0 && (
               <Badge className="ml-auto bg-accent text-accent-foreground">
                 {notifications}
@@ -137,11 +137,11 @@ export function Sidebar({ user, activeSection, onSectionChange, notifications, o
         ) : (
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className="w-full justify-start gap-2"
             onClick={() => onSectionChange('notifications')}
           >
-            <Bell size={20} weight="bold" />
-            Notificações
+            <Bell size={20} weight="bold" className="shrink-0" />
+            <span className="flex-1 text-left">Notificações</span>
             {notifications > 0 && (
               <Badge className="ml-auto bg-accent text-accent-foreground">
                 {notifications}
@@ -152,19 +152,22 @@ export function Sidebar({ user, activeSection, onSectionChange, notifications, o
         
         <Button
           variant="ghost"
-          className="w-full justify-start"
+          className="w-full justify-start gap-2"
           onClick={() => onSectionChange('profile')}
         >
-          <User size={20} weight="bold" />
-          Perfil
+          <User size={20} weight="bold" className="shrink-0" />
+          <span className="flex-1 text-left">Perfil</span>
         </Button>
         
         <Button
           variant="ghost"
           className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
         >
-          <SignOut size={20} weight="bold" />
-          Sair
+          <SignOut size={20} weight="bold" className="shrink-0" />
+          <span className="flex-1 text-left">Sair</span>
         </Button>
       </div>
     </aside>
