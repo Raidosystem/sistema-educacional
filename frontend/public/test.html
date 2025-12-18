@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TESTE BÁSICO</title>
+    <style>
+        body {
+            background-color: red;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚨 TESTE BÁSICO HTML - SE VOCÊ VÊ ISSO, O HTML ESTÁ FUNCIONANDO</h1>
+    <p>Se esta página aparece, o problema não é com o servidor web.</p>
+    <p>Data: <span id="date"></span></p>
+    <p>URL: <span id="url"></span></p>
+    
+    <script>
+        document.getElementById('date').textContent = new Date().toLocaleString();
+        document.getElementById('url').textContent = window.location.href;
+        console.log('HTML básico carregado com sucesso!');
+    </script>
+</body>
+</html>

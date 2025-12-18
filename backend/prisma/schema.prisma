@@ -1,0 +1,464 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  SECRETARY
+  TEACHER
+  STUDENT
+  PARENT
+  NUTRITIONIST
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum SchoolLevel {
+  INFANTIL
+  FUNDAMENTAL_I
+  FUNDAMENTAL_II
+  MEDIO
+  EJA
+}
+
+enum Period {
+  MORNING
+  AFTERNOON
+  EVENING
+  FULL_TIME
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  JUSTIFIED
+  LATE
+}
+
+enum GradeStatus {
+  APPROVED
+  FAILED
+  RECOVERY
+  TRANSFERRED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  INACTIVE
+  TRANSFERRED
+  COMPLETED
+  CANCELLED
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  ENROLLED
+  CANCELLED
+  EXPIRED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      UserRole
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  person   Person? @relation(fields: [personId], references: [id])
+  personId String? @unique
+
+  @@map("users")
+}
+
+model Person {
+  id          String    @id @default(cuid())
+  cpf         String    @unique
+  rg          String?
+  name        String
+  birthDate   DateTime
+  gender      Gender
+  phone       String?
+  email       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  nationality String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relationships
+  user               User?
+  studentProfile     Student?
+  teacherProfile     Teacher?
+  parentProfile      Parent?
+  secretaryProfile   Secretary?
+  nutritionistProfile Nutritionist?
+
+  @@map("people")
+}
+
+model Student {
+  id             String           @id @default(cuid())
+  registration   String           @unique
+  allergies      String?
+  medications    String?
+  observations   String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  // Relationships
+  person         Person           @relation(fields: [personId], references: [id])
+  personId       String           @unique
+  enrollments    Enrollment[]
+  attendances    Attendance[]
+  grades         Grade[]
+  parents        StudentParent[]
+  queueEntries   QueueEntry[]
+  nutritionalProfile NutritionalProfile?
+
+  @@map("students")
+}
+
+model Teacher {
+  id             String   @id @default(cuid())
+  registration   String   @unique
+  specialization String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relationships
+  person         Person    @relation(fields: [personId], references: [id])
+  personId       String    @unique
+  classes        Class[]
+  lessons        Lesson[]
+  attendances    Attendance[]
+  grades         Grade[]
+
+  @@map("teachers")
+}
+
+model Parent {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  person    Person          @relation(fields: [personId], references: [id])
+  personId  String          @unique
+  children  StudentParent[]
+
+  @@map("parents")
+}
+
+model Secretary {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  person   Person @relation(fields: [personId], references: [id])
+  personId String @unique
+
+  @@map("secretaries")
+}
+
+model Nutritionist {
+  id        String   @id @default(cuid())
+  crn       String   @unique // Conselho Regional de Nutrição
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  person   Person @relation(fields: [personId], references: [id])
+  personId String @unique
+  menus    Menu[]
+
+  @@map("nutritionists")
+}
+
+model StudentParent {
+  id         String @id @default(cuid())
+  studentId  String
+  parentId   String
+  isPrimary  Boolean @default(false)
+
+  // Relationships
+  student Student @relation(fields: [studentId], references: [id])
+  parent  Parent  @relation(fields: [parentId], references: [id])
+
+  @@unique([studentId, parentId])
+  @@map("student_parents")
+}
+
+model School {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  address     String
+  phone       String?
+  email       String?
+  director    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  classes     Class[]
+  enrollments Enrollment[]
+  queueEntries QueueEntry[]
+
+  @@map("schools")
+}
+
+model Subject {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  workload  Int      // Carga horária
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  classes ClassSubject[]
+  lessons Lesson[]
+  grades  Grade[]
+
+  @@map("subjects")
+}
+
+model Class {
+  id        String      @id @default(cuid())
+  name      String
+  year      Int
+  level     SchoolLevel
+  period    Period
+  capacity  Int
+  active    Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  // Relationships
+  school      School         @relation(fields: [schoolId], references: [id])
+  schoolId    String
+  teacher     Teacher?       @relation(fields: [teacherId], references: [id])
+  teacherId   String?
+  subjects    ClassSubject[]
+  enrollments Enrollment[]
+  lessons     Lesson[]
+  attendances Attendance[]
+
+  @@map("classes")
+}
+
+model ClassSubject {
+  id        String @id @default(cuid())
+  classId   String
+  subjectId String
+
+  // Relationships
+  class   Class   @relation(fields: [classId], references: [id])
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@unique([classId, subjectId])
+  @@map("class_subjects")
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  year        Int
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime         @default(now())
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relationships
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   String
+  school    School  @relation(fields: [schoolId], references: [id])
+  schoolId  String
+
+  @@unique([studentId, classId, year])
+  @@map("enrollments")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  date        DateTime
+  content     String
+  observations String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  class     Class     @relation(fields: [classId], references: [id])
+  classId   String
+  subject   Subject   @relation(fields: [subjectId], references: [id])
+  subjectId String
+  teacher   Teacher   @relation(fields: [teacherId], references: [id])
+  teacherId String
+  attendances Attendance[]
+
+  @@map("lessons")
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  date      DateTime
+  status    AttendanceStatus
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  // Relationships
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   String
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+  teacherId String
+  lesson    Lesson? @relation(fields: [lessonId], references: [id])
+  lessonId  String?
+
+  @@unique([studentId, classId, date])
+  @@map("attendances")
+}
+
+model Grade {
+  id          String      @id @default(cuid())
+  value       Float
+  weight      Float       @default(1.0)
+  period      String      // 1º Bimestre, 2º Bimestre, etc.
+  type        String      // Prova, Trabalho, Participação, etc.
+  observations String?
+  status      GradeStatus @default(APPROVED)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relationships
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  subjectId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id])
+  teacherId String
+
+  @@map("grades")
+}
+
+// Central de Vagas Models
+model QueueEntry {
+  id              String      @id @default(cuid())
+  position        Int
+  status          QueueStatus @default(WAITING)
+  priority        Int         @default(0)
+  registrationDate DateTime   @default(now())
+  calledAt        DateTime?
+  enrolledAt      DateTime?
+  cancelledAt     DateTime?
+  observations    String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relationships
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+  school    School  @relation(fields: [schoolId], references: [id])
+  schoolId  String
+
+  @@unique([studentId, schoolId])
+  @@map("queue_entries")
+}
+
+// Alimentação Escolar Models
+model NutritionalProfile {
+  id           String   @id @default(cuid())
+  weight       Float?
+  height       Float?
+  allergies    String?
+  restrictions String?
+  observations String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relationships
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String  @unique
+
+  @@map("nutritional_profiles")
+}
+
+model Menu {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  date        DateTime
+  period      Period
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  nutritionist   Nutritionist @relation(fields: [nutritionistId], references: [id])
+  nutritionistId String
+  items          MenuItem[]
+
+  @@map("menus")
+}
+
+model MenuItem {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  quantity    String
+  calories    Float?
+  proteins    Float?
+  carbs       Float?
+  fats        Float?
+
+  // Relationships
+  menu   Menu   @relation(fields: [menuId], references: [id])
+  menuId String
+
+  @@map("menu_items")
+}
+
+// Configurações e Logs
+model SystemConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_configs")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
