@@ -13,7 +13,8 @@ import {
   Brain,
   Target,
   Baby,
-  FileText
+  FileText,
+  Lifebuoy
 } from '@phosphor-icons/react'
 import type { User as UserType } from '@/lib/types'
 
@@ -39,7 +40,8 @@ export function Sidebar({ user, activeSection, onSectionChange }: SidebarProps) 
     { id: 'alfabetizacao', label: 'Apoio à Alfabetização', icon: Brain },
     { id: 'saeb', label: 'Preparação SAEB', icon: Target },
     { id: 'assessoria', label: 'Assessoria Pedagógica', icon: Chalkboard },
-    { id: 'relatorios', label: 'Relatórios', icon: FileText, roles: ['coordinator', 'director', 'secretary', 'admin'] }
+    { id: 'relatorios', label: 'Relatórios', icon: FileText, roles: ['coordinator', 'director', 'secretary', 'admin'] },
+    { id: 'suporte', label: 'Ajuda e Suporte', icon: Lifebuoy }
   ]
 
   const filteredNavItems = navItems.filter(item => {

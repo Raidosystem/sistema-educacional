@@ -20,8 +20,7 @@ import AssessoriaPedagogicaView from '@/components/AssessoriaPedagogicaView'
 import BancoQuestoesView from '@/components/BancoQuestoesView'
 import RelatoriosView from '@/components/RelatoriosView'
 import PreparacaoSAEBView from '@/components/PreparacaoSAEBView'
-import ApoioAlfabetizacaoView from '@/components/ApoioAlfabetizacaoView'
-import { Toaster } from '@/components/ui/sonner'
+import ApoioAlfabetizacaoView from '@/components/ApoioAlfabetizacaoView'import SuporteView from '@/components/SuporteView'import { Toaster } from '@/components/ui/sonner'
 import { toast } from 'sonner'
 import { generateAttendanceNotification, generateGradeNotification, generateCustomMessageNotification } from '@/lib/notificationService'
 import type {
@@ -612,6 +611,8 @@ function App() {
         return <PreparacaoSAEBView />
       case 'alfabetizacao':
         return <ApoioAlfabetizacaoView />
+      case 'suporte':
+        return <SuporteView />
       case 'notifications':
         return (
           <NotificationsView
