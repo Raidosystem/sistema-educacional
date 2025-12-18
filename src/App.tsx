@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
 import { MobileNav } from '@/components/MobileNav'
 import { DashboardView } from '@/components/DashboardView'
@@ -645,6 +646,23 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header
+        user={currentUser || {
+          id: 'user-1',
+          name: 'Usuário',
+          email: 'usuario@escola.edu.br',
+          role: 'coordinator'
+        }}
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        notifications={
+          currentUser?.role === 'parent'
+            ? getParentNotifications().filter(n => !n.read).length
+            : unreadCount
+        }
+        onRoleChange={handleRoleChange}
+      />
+
       <div className="flex">
         <div className="hidden md:block">
           <Sidebar
@@ -656,12 +674,6 @@ function App() {
             }}
             activeSection={activeSection}
             onSectionChange={setActiveSection}
-            notifications={
-              currentUser?.role === 'parent'
-                ? getParentNotifications().filter(n => !n.read).length
-                : unreadCount
-            }
-            onRoleChange={handleRoleChange}
           />
         </div>
 
